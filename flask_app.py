@@ -1,18 +1,24 @@
 import os
-from flask import Flask, flash, request, redirect, url_for
+from flask import Flask, flash, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = 'uploads/'
+TEMPLATE_FOLDER = "templates.folder/"
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.template_folder = TEMPLATE_FOLDER
 
 def allowed_file(filename: str) -> bool:
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
+def home():
+    return render_template("base.html")
+
+@app.route("/upload", methods=['GET', 'POST'])
 def upload_file():
     # if request.method == 'POST':
     #     # check if the post request has the file part
@@ -29,15 +35,15 @@ def upload_file():
     #         filename = secure_filename(file.filename)
     #         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     #         return redirect(url_for('download_file', name=filename))
-    return '''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Upload>
-    </form>
-    '''
+    return render_template("upload.html")
+
+@app.route("/download")
+def download_file():
+    return render_template("download.html")
+
+@app.route("/convert")
+def convert_file():
+    return render_template("convert.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
