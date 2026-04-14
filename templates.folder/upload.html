@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% block stylesheet%}<link rel="stylesheet" href="{{ url_for("static", filename="upload.css")}}">{% endblock %}
+
 {% block title %}Upload{% endblock %}
 
 {% block body %}
@@ -9,19 +11,3 @@
   <input type=submit value=Upload>
 </form>
 {% endblock %}
-
-<style>
-
-body {
-  background-color: azure;
-}
-
-h1 {
-  text-align: center;
-}
-
-form {
-  text-align: center;
-}
-
-</style>

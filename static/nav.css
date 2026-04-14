@@ -20,7 +20,8 @@ nav ul {
   align-items: center;
 }
 
-nav ul a {
+nav a {
+  color: darkslateblue;
   background-color: azure;
   padding: 10px;
   border-radius: 10px;

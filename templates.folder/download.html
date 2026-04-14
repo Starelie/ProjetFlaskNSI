@@ -1,19 +1,9 @@
 {% extends 'base.html' %}
 
+{% block stylesheet%}<link rel="stylesheet" href="{{ url_for("static", filename="download.css")}}">{% endblock %}
+
 {% block title %}Download{% endblock %}
 
 {% block body %}
 <h1>Download File</h1>
 {% endblock %}
-
-<style>
-
-body {
-  background-color: azure;
-}
-
-h1 {
-  text-align: center;
-}
-
-</style>

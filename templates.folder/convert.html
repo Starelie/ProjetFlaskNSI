@@ -1,19 +1,9 @@
 {% extends 'base.html' %}
 
+{% block stylesheet %}<link rel="stylesheet" href="{{ url_for("static", filename="convert.css")}}">{% endblock %}
+
 {% block title %}Convert{% endblock %}
 
 {% block body %}
 <h1>Convert File</h1>
 {% endblock %}
-
-<style>
-
-body {
-  background-color: azure;
-}
-
-h1 {
-  text-align: center;
-}
-
-</style>
