@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 
 # Declare constants
 UPLOAD_FOLDER = 'uploads/'
+DATABASE_FOLDER = "databases/"
 TEMPLATE_FOLDER = "templates.folder/"
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
@@ -14,22 +15,20 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.template_folder = TEMPLATE_FOLDER
 
 # Setup the database
-os.makedirs(os.path.relpath(UPLOAD_FOLDER), exist_ok=True)
-connection = sqlite3.connect(f"{UPLOAD_FOLDER}/uploads.db")
+os.makedirs(os.path.relpath(DATABASE_FOLDER), exist_ok=True)
+connection = sqlite3.connect(f"{DATABASE_FOLDER}/uploads.db")
 cursor = connection.cursor()
 cursor.execute("CREATE TABLE IF NOT EXISTS uploads(filename, extension, time)")
 cursor.close()
 connection.close()
 
 def allowed_file(filename: str) -> bool:
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+  return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def add_file_database(filename: str) -> None:
-  connection = sqlite3.connect("uploads/uploads.db")
+  connection = sqlite3.connect(f"{DATABASE_FOLDER}/uploads.db")
   cursor = connection.cursor()
-  split_filename = filename.rsplit('.', 1)
-  table_entry = [split_filename[0], split_filename[1].lower()]
+  table_entry = filename.rsplit('.', 1)
   cursor.execute("""
                   INSERT INTO uploads (filename, extension, time)
                   VALUES (?, ?, CURRENT_TIMESTAMP)
@@ -38,37 +37,39 @@ def add_file_database(filename: str) -> None:
   connection.commit()
   connection.close()
 
+def clean_filename(filename: str) -> str:
+  split_filename = filename.rsplit(".", 1)
+  clean_filename = split_filename[0] + "." + split_filename[1].lower()
+  return clean_filename
+
 @app.route('/')
 def home():
-    return render_template("base.html")
+  return render_template("base.html")
 
 @app.route("/upload", methods=['GET', 'POST'])
 def upload_file():
-    if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        # If the user does not select a file, the browser submits an
-        # empty file without a filename.
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            add_file_database(filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('download_file', name=filename))
-    return render_template("upload.html")
+  if request.method == 'POST':
+    # check if the post request has the file part
+    if 'file' not in request.files:
+      flash('No file part')
+      return redirect(request.url)
+    file = request.files['file']
+    
+    if file and allowed_file(file.filename):
+      filename = clean_filename(secure_filename(file.filename))
+      add_file_database(filename)
+      file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+      return redirect(url_for('download_file', name=filename))
+  return render_template("upload.html")
 
 @app.route("/download")
 def download_file():
-    return render_template("download.html")
+  files_names = os.listdir(UPLOAD_FOLDER)
+  return render_template("download.html", files=files_names)
 
 @app.route("/convert")
 def convert_file():
-    return render_template("convert.html")
+  return render_template("convert.html")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+  app.run(debug=True)
