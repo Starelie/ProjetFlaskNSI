@@ -3,15 +3,19 @@ import sqlite3
 from flask import Flask, flash, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 
+# Declare constants
 UPLOAD_FOLDER = 'uploads/'
 TEMPLATE_FOLDER = "templates.folder/"
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
+# Setup flask
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.template_folder = TEMPLATE_FOLDER
 
-connection = sqlite3.connect("uploads/uploads.db")
+# Setup the database
+os.makedirs(os.path.relpath(UPLOAD_FOLDER), exist_ok=True)
+connection = sqlite3.connect(f"{UPLOAD_FOLDER}/uploads.db")
 cursor = connection.cursor()
 cursor.execute("CREATE TABLE IF NOT EXISTS uploads(filename, extension, time)")
 cursor.close()
