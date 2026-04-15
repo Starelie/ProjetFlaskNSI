@@ -14,8 +14,11 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.template_folder = TEMPLATE_FOLDER
 
-# Setup the database
+# Create necessary folders if they don't already exist
 os.makedirs(os.path.relpath(DATABASE_FOLDER), exist_ok=True)
+os.makedirs(os.path.relpath(UPLOAD_FOLDER), exist_ok=True)
+
+# Setup the database
 connection = sqlite3.connect(f"{DATABASE_FOLDER}/uploads.db")
 cursor = connection.cursor()
 cursor.execute("CREATE TABLE IF NOT EXISTS uploads(filename, extension, time)")
