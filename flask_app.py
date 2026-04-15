@@ -32,6 +32,10 @@ def add_file_database(filename: str) -> None:
   connection = sqlite3.connect(f"{DATABASE_FOLDER}/uploads.db")
   cursor = connection.cursor()
   table_entry = filename.rsplit('.', 1)
+  files = cursor.execute("SELECT filename, extension FROM uploads").fetchall()
+  for (name, extension) in files:
+    if name == table_entry[0] and extension == table_entry[1]:
+      cursor.execute("DELETE FROM uploads WHERE filename = ? AND extension = ?", (name, extension))
   cursor.execute("""
                   INSERT INTO uploads (filename, extension, time)
                   VALUES (?, ?, CURRENT_TIMESTAMP)
