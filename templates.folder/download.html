@@ -6,4 +6,9 @@
 
 {% block body %}
 <h1>Download File</h1>
+<ul id="files-list">
+  {% for file in files %}
+  <li>{{file}}</li><a href="" download={{file}}>download</a>
+  {% endfor %}
+</ul>
 {% endblock %}
