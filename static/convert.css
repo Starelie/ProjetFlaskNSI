@@ -1,34 +1,8 @@
-#files-list {
-  width: min-content;
-  margin: auto;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  grid-template-columns: 1fr max-content;
-}
-
-.top-row {
-  border-top: 4px solid black;
-}
-
-.top-row.selection-column {
-  text-decoration: none;
-}
-
-.selection-column {
-  text-decoration: underline;
+.second-column {
+  display: flex;
+  justify-content: space-between;
 }
 
 .selected {
   color: blueviolet;
-}
-
-#files-list>.files-column {
-  border-left: 4px solid black;
-}
-
-#files-list>* {
-  border-bottom: 4px solid black;
-  border-right: 4px solid black;
-  padding: 4px;
 }

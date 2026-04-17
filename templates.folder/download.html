@@ -1,14 +1,18 @@
 {% extends "base.html" %}
 
-{% block stylesheet%}<link rel="stylesheet" href="{{ url_for("static", filename="download.css")}}">{% endblock %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{{ url_for("static", filename="download.css")}}">
+<link rel="stylesheet" href="{{ url_for("static", filename="grid.css")}}">
+{% endblock %}
 
 {% block title %}Download{% endblock %}
 
 {% block body %}
 <h1>Download File</h1>
 <ul id="files-list">
+  <li class="top-row first-column">Available files</li><li class="top-row second-column">Download</li>
   {% for file in files %}
-  <li>{{file}}</li><a href="" download={{file}}>download<i class="fa-solid fa-download"></i></a>
+  <li class="first-column">{{file}}</li><a class="second-column" href="" download={{file}}><span class="underline">download</span><i class="fa-solid fa-download"></i></a>
   {% endfor %}
 </ul>
 {% endblock %}

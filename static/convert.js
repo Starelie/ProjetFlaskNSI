@@ -7,15 +7,18 @@ function file_selection()
       if (!list_elements[i].classList.contains("selected")) {
         for (let j = 3; j < list_elements.length; j += 2) {
           if (list_elements[j].classList.contains("selected")) {
-            list_elements[j].textContent = "select ☐";
+            list_elements[j].firstChild.textContent = "select";
+            list_elements[j].lastChild.textContent = "☐";
             list_elements[j].classList.remove("selected");
           }
         }
-        list_elements[i].textContent = "selected ☑";
+        list_elements[i].firstChild.textContent = "selected";
+        list_elements[i].lastChild.textContent = "☑";
         list_elements[i].classList.add("selected");
       }
       else {
-        list_elements[i].textContent = "select ☐";
+        list_elements[i].firstChild.textContent = "select";
+        list_elements[i].lastChild.textContent = "☐";
         list_elements[i].classList.remove("selected");
       }
     });
