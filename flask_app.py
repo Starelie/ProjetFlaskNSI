@@ -76,7 +76,8 @@ def download_file():
 
 @app.route("/convert")
 def convert_file():
-  return render_template("convert.html")
+  files_names = os.listdir(UPLOAD_FOLDER)
+  return render_template("convert.html", files=files_names)
 
 if __name__ == "__main__":
   app.run(debug=True)

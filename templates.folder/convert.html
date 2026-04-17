@@ -6,4 +6,11 @@
 
 {% block body %}
 <h1>Convert File</h1>
+<ul id="files-list">
+  <li class="top-row files-column">Available files</li><li class="top-row selection-column">Selection (click)</li>
+  {% for file in files %}
+  <li class="files-column">{{file}}</li><li class="selection-column">select ☐</li>
+  {% endfor %}
+</ul>
+<script src="{{url_for("static", filename="convert.js")}}"></script>
 {% endblock %}
