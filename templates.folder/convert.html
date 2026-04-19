@@ -18,6 +18,7 @@
 </ul>
 <form action="/convert" method="POST">
   <input type="hidden" id="selected-file" name="selected_file">
+  <input type="hidden" id="possible-convertions" name="selected_file">
   <button type="submit">Convert</button>
 </form>
 <script src="{{url_for("static", filename="convert.js")}}"></script>
