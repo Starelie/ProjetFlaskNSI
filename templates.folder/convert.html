@@ -11,14 +11,20 @@
 {% block body %}
 <h1>Convertir un fichier</h1>
 <ul id="files-list">
-  <li class="top-row first-column">Fichiers disponibles</li><li class="top-row second-column">sélection</li>
-  {% for file in files %}
-  <li class="first-column">{{file}}</li><li class="second-column"><span class="underline">select</span><span>☐</span></li>
+  <li class="top-row first-column">Fichiers disponibles</li><li class="top-row second-column">Sélection</li><li class="top-row third-column">Output</li>
+  {% for input in inputs %}
+  <li class="first-column">{{input[0]}}</li><li class="second-column"><span class="underline">select</span><span>☐</span></li>
+  <select name="extensions" class="third-column">
+    {% for extension in input[1] %}
+      <li>{{extension}}</li>
+      <option value="{{extension}}">{{extension}}</option>
+    {% endfor %}
+  </select>
   {% endfor %}
 </ul>
 <form action="/convert" method="POST">
   <input type="hidden" id="selected-file" name="selected_file">
-  <input type="hidden" id="possible-convertions" name="selected_file">
+  <input type="hidden" id="selected-extension" name="selected_extension">
   <button type="submit">Convertir</button>
 </form>
 <script src="{{url_for("static", filename="convert.js")}}"></script>
