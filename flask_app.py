@@ -1,13 +1,14 @@
 import os
 import sqlite3
-from flask import Flask, flash, request, redirect, url_for, render_template
+from flask import Flask, flash, request, redirect, send_file, url_for, render_template
 from werkzeug.utils import secure_filename
+import pypandoc
 
 # Declare constants
 UPLOAD_FOLDER = "uploads/"
 DATABASE_FOLDER = "databases/"
 TEMPLATE_FOLDER = "templates.folder/"
-ALLOWED_EXTENSIONS = {"txt", "pdf", "png", "jpg", "jpeg", "gif"}
+ALLOWED_EXTENSIONS = {"txt", "pdf", "png", "jpg", "jpeg", "gif", "html", "docx"}
 
 # Setup flask
 app = Flask(__name__)
@@ -73,10 +74,28 @@ def upload_file():
 def download_file():
   files_names = os.listdir(UPLOAD_FOLDER)
   return render_template("download.html", files=files_names)
-
-@app.route("/convert")
+'''
+  print(os.path.join(app.config['UPLOAD_FOLDER'],))
+  output = pypandoc.convert_file(os.path.join(app.config['UPLOAD_FOLDER'], files_names[0]), 'html')
+  # output.file.save(os.path.join(app.config['UPLOAD_FOLDER'], "converted.html"))
+'''
+@app.route("/convert", methods=["GET","POST"])
 def convert_file():
   files_names = os.listdir(UPLOAD_FOLDER)
+  if request.method == "POST":
+    selected = request.form.get("selected_file")
+
+    if selected is None:
+      return render_template("convert.html", files=files_names)
+    
+    input_path = os.path.join(app.config["UPLOAD_FOLDER"], selected)
+
+    if not os.path.isfile(input_path):
+      return render_template("convert.html", files=files_names)
+    
+    output = pypandoc.convert_file(input_path, 'html')
+    print(output)
+    output.save(os.path.join(app.config['UPLOAD_FOLDER'], "converted.html"))
   return render_template("convert.html", files=files_names)
 
 if __name__ == "__main__":

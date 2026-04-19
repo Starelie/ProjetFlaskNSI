@@ -12,5 +12,9 @@
   <li class="files-column">{{file}}</li><li class="selection-column">select ☐</li>
   {% endfor %}
 </ul>
+<form action="/convert" method="POST">
+  <input type="hidden" id="selected-file" name="selected_file">
+  <button type="submit">Convert</button>
+</form>
 <script src="{{url_for("static", filename="convert.js")}}"></script>
 {% endblock %}

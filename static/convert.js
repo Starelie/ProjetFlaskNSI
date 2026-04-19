@@ -18,6 +18,8 @@ function file_selection()
         list_elements[i].textContent = "select ☐";
         list_elements[i].classList.remove("selected");
       }
+
+      document.getElementById("selected-file").value = get_selected_file();
     });
   }
 }
