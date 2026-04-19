@@ -59,7 +59,7 @@ def lowercase_filename_extension(filename: str) -> str:
 
 @app.route("/")
 def home():
-  return render_template("base.html")
+  return render_template("home.html")
 
 @app.route("/upload", methods=["GET", "POST"])
 def upload_file():
