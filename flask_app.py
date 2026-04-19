@@ -61,12 +61,7 @@ def home():
 @app.route("/upload", methods=["GET", "POST"])
 def upload_file():
   if request.method == "POST":
-    # check if the post request has the file part
-    if "file" not in request.files:
-      flash("No file part")
-      return redirect(request.url)
     file = request.files["file"]
-    
     if file and allowed_file(file.filename):
       filename = lowercase_filename_extension(secure_filename(file.filename))
       add_file_database(filename)
