@@ -28,7 +28,10 @@ cursor.close()
 connection.close()
 
 def split_filename(filename: str) -> list:
-  return filename.rsplit(".", 1)
+  split = filename.rsplit(".", 1)
+  if (split[0] == ""):
+    split[0] = "no_name"
+  return split
 
 def allowed_file(filename: str) -> bool:
   return "." in filename and split_filename(filename)[1].lower() in ALLOWED_EXTENSIONS
@@ -63,7 +66,7 @@ def upload_file():
   if request.method == "POST":
     file = request.files["file"]
     if file and allowed_file(file.filename):
-      filename = lowercase_filename_extension(secure_filename(file.filename))
+      filename = secure_filename(lowercase_filename_extension(file.filename))
       add_file_database(filename)
       file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
       return redirect(url_for("convert_file", name=filename))
