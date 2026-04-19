@@ -3,6 +3,7 @@ import sqlite3
 from flask import Flask, flash, request, redirect, send_file, url_for, render_template
 from werkzeug.utils import secure_filename
 import pypandoc
+import ffmpeg
 
 # Declare constants
 UPLOAD_FOLDER = "uploads/"
@@ -26,13 +27,16 @@ cursor.execute("CREATE TABLE IF NOT EXISTS uploads(filename, extension, time)")
 cursor.close()
 connection.close()
 
+def split_filename(filename: str) -> list:
+  return filename.rsplit(".", 1)
+
 def allowed_file(filename: str) -> bool:
-  return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+  return "." in filename and split_filename(filename)[1].lower() in ALLOWED_EXTENSIONS
 
 def add_file_database(filename: str) -> None:
   connection = sqlite3.connect(f"{DATABASE_FOLDER}/uploads.db")
   cursor = connection.cursor()
-  table_entry = filename.rsplit(".", 1)
+  table_entry = split_filename(filename)
   files = cursor.execute("SELECT filename, extension FROM uploads").fetchall()
   for (name, extension) in files:
     if name == table_entry[0] and extension == table_entry[1]:
@@ -45,9 +49,9 @@ def add_file_database(filename: str) -> None:
   connection.commit()
   connection.close()
 
-def clean_filename(filename: str) -> str:
-  split_filename = filename.rsplit(".", 1)
-  clean_filename = split_filename[0] + "." + split_filename[1].lower()
+def lowercase_filename_extension(filename: str) -> str:
+  splited_filename = split_filename(filename)
+  clean_filename = splited_filename[0] + "." + splited_filename[1].lower()
   return clean_filename
 
 @app.route("/")
@@ -64,7 +68,7 @@ def upload_file():
     file = request.files["file"]
     
     if file and allowed_file(file.filename):
-      filename = clean_filename(secure_filename(file.filename))
+      filename = lowercase_filename_extension(secure_filename(file.filename))
       add_file_database(filename)
       file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
       return redirect(url_for("download_file", name=filename))

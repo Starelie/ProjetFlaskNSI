@@ -1,3 +1,8 @@
+let FFMPEG_FORMATS_FROM = ["avi", "h261", "h263", "h264", "hevc", "m4v", "mov", "mp3", "mp4", "wav", "webm"]
+let FFMPEG_FORMATS_TO = ["avi", "h261", "h263", "h264", "hevc", "m4v", "mov", "mp3", "mp4", "wav", "webm"]
+let PANDOC_FORMATS_FROM = ["csv", "docx", "docx", "epub", "json", "html", "ipynb", "md", "odt", "pptx"]
+let PANDOC_FORMATS_TO = ["docx", "epub", "json", "html", "ipynb", "md", "odt", "pdf", "pptx"]
+
 function file_selection()
 {
   let list = document.getElementById("files-list");
@@ -23,8 +28,27 @@ function file_selection()
       }
 
       document.getElementById("selected-file").value = get_selected_file();
+      document.getElementById("possible-convertions").value = get_possible_convertions();
     });
   }
+}
+
+function get_possible_convertions()
+{
+  var file = get_selected_file()
+  file = file.split(".")
+  let extension = file.at(file.length - 1)
+  var possible_convertions = []
+  if (extension in FFMPEG_FORMATS_FROM)
+  {
+    possible_convertions.concat(FFMPEG_FORMATS_TO)
+  }
+  if (extension in PANDOC_FORMATS_FROM)
+  {
+    possible_convertions.concat(PANDOC_FORMATS_TO)
+  }
+  console.log(possible_convertions)
+  return possible_convertions
 }
 
 function get_selected_file()
