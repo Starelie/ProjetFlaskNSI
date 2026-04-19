@@ -6,3 +6,7 @@
 .selected {
   color: blueviolet;
 }
+
+#files-list {
+  grid-template-columns: 1fr max-content max-content;
+}

@@ -1,24 +1,32 @@
 import os
 import sqlite3
-from flask import Flask, flash, request, redirect, send_file, url_for, render_template
+from flask import Flask, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 import pypandoc
 import ffmpeg
 
 # Declare constants
 UPLOAD_FOLDER = "uploads/"
+CONVERTED_FOLDER = "converted/"
 DATABASE_FOLDER = "databases/"
 TEMPLATE_FOLDER = "templates.folder/"
-ALLOWED_EXTENSIONS = {"txt", "pdf", "png", "jpg", "jpeg", "gif", "html", "docx"}
+INPUT_EXTENSIONS_FFMPEG = ("ast", "avi", "flac", "gif", "h264", "hevc", "ico", "mov", "mp3", "mp4", "m4a", "wav")
+OUTPUT_EXTENSIONS_FFMPEG = ("ast", "avi", "flac", "gif", "h264","hevc", "ico", "ipod", "mov", "mp3", "mp4", "psp", "wav", "webm", "webp")
+INPUT_EXTENSIONS_PANDOC = ("csv", "docx", "epub", "json", "html", "ipynb", "md", "odt", "pptx")
+OUTPUT_EXTENSIONS_PANDOC = ("docx", "epub", "json", "html", "ipynb", "md", "odt", "pptx")
+# OUTPUT_EXTENSIONS_PANDOC = ("docx", "epub", "json", "html", "ipynb", "md", "odt", "pdf", "pptx")
+ALLOWED_INPUT_EXTENSIONS = INPUT_EXTENSIONS_FFMPEG + INPUT_EXTENSIONS_PANDOC
 
 # Setup flask
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["CONVERTED_FOLDER"] = CONVERTED_FOLDER
 app.template_folder = TEMPLATE_FOLDER
 
 # Create necessary folders if they don't already exist
 os.makedirs(os.path.relpath(DATABASE_FOLDER), exist_ok=True)
 os.makedirs(os.path.relpath(UPLOAD_FOLDER), exist_ok=True)
+os.makedirs(os.path.relpath(CONVERTED_FOLDER), exist_ok=True)
 
 # Setup the database
 connection = sqlite3.connect(f"{DATABASE_FOLDER}/uploads.db")
@@ -34,7 +42,7 @@ def split_filename(filename: str) -> list:
   return split
 
 def allowed_file(filename: str) -> bool:
-  return "." in filename and split_filename(filename)[1].lower() in ALLOWED_EXTENSIONS
+  return "." in filename and split_filename(filename)[1].lower() in ALLOWED_INPUT_EXTENSIONS
 
 def add_file_database(filename: str) -> None:
   connection = sqlite3.connect(f"{DATABASE_FOLDER}/uploads.db")
@@ -74,7 +82,7 @@ def upload_file():
 
 @app.route("/download")
 def download_file():
-  files_names = os.listdir(UPLOAD_FOLDER)
+  files_names = os.listdir(CONVERTED_FOLDER)
   return render_template("download.html", files=files_names)
 '''
   print(os.path.join(app.config['UPLOAD_FOLDER'],))
@@ -83,23 +91,37 @@ def download_file():
 '''
 @app.route("/convert", methods=["GET","POST"])
 def convert_file():
-  files_names = os.listdir(UPLOAD_FOLDER)
+  files = os.listdir(UPLOAD_FOLDER)
+  template_inputs = []
+  for i in range(len(files)):
+    extensions = []
+    if split_filename(files[i])[1] in INPUT_EXTENSIONS_FFMPEG:
+      extensions.extend(OUTPUT_EXTENSIONS_FFMPEG)
+    if split_filename(files[i])[1] in INPUT_EXTENSIONS_PANDOC:
+      extensions.extend(OUTPUT_EXTENSIONS_PANDOC)
+    template_inputs.append((files[i], extensions))
+      
   if request.method == "POST":
     selected = request.form.get("selected_file")
+    extension = request.form.get("selected_extension")
 
     if selected is None:
-      return render_template("convert.html", files=files_names)
+      return render_template("convert.html", inputs=template_inputs)
     
     input_path = os.path.join(app.config["UPLOAD_FOLDER"], selected)
 
     if not os.path.isfile(input_path):
-      return render_template("convert.html", files=files_names)
+      return render_template("convert.html", inputs=template_inputs)
 
-    base_name, _ = os.path.splitext(selected)
-    output_filename = base_name + ".docx"
-    output = pypandoc.convert_file(input_path, 'docx', outputfile= os.path.join(app.config["UPLOAD_FOLDER"], output_filename))
-    return redirect(url_for("download_file", name=files_names))
-  return render_template("convert.html", files=files_names)
+    base_name, input_extension = split_filename(selected)
+    output_filename = base_name + "." + extension
+    output_path = os.path.join(app.config["CONVERTED_FOLDER"], output_filename)
+    if (input_extension in INPUT_EXTENSIONS_PANDOC):
+      pypandoc.convert_file(input_path, to=extension, outputfile=output_path)
+    if (extension in OUTPUT_EXTENSIONS_FFMPEG and input_extension in INPUT_EXTENSIONS_FFMPEG):
+      ffmpeg.input(input_path).output(output_path).run()
+    return redirect(url_for("download_file"))
+  return render_template("convert.html", inputs=template_inputs)
 
 if __name__ == "__main__":
   app.run(debug=True)
