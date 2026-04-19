@@ -8,9 +8,9 @@
 {% block title %}Download{% endblock %}
 
 {% block body %}
-<h1>Download File</h1>
+<h1>Télécharger un fichier</h1>
 <ul id="files-list">
-  <li class="top-row first-column">Available files</li><li class="top-row second-column">Download</li>
+  <li class="top-row first-column">Fichiers disponibles</li><li class="top-row second-column">Télécharger</li>
   {% for file in files %}
   <li class="first-column">{{file}}</li><a class="second-column" href="" download={{file}}><span class="underline">download</span><i class="fa-solid fa-download"></i></a>
   {% endfor %}

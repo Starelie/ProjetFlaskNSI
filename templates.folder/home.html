@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block stylesheet%}<link rel="stylesheet" href="{{ url_for("static", filename="upload.css")}}">{% endblock %}
+
+{% block title %}Upload{% endblock %}
+
+{% block body %}
+<h1>Bienvenu a notre convertisseur de fichiers!!!</h1>
+<p>Ici vous pouvez téléverser les fichiers à convertir et on va vous les convertir de maniere rapide et efficace, vous pourrez ensuite les télécharger une fois la conversion terminée.</p>
+{% endblock %}
