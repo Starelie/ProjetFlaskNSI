@@ -2,7 +2,7 @@ nav {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  background-color: aqua;
+  background-color: rgb(105, 188, 239);
   padding: 10px;
 }
 
@@ -26,4 +26,10 @@ nav a {
   padding: 10px;
   border-radius: 10px;
   text-decoration: none;
+
+}
+nav a:hover {
+  background-color: rgb(216, 233, 244);
+  cursor: pointer;
+  transition: 0.30s;
 }
