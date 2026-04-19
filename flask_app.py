@@ -67,7 +67,7 @@ def upload_file():
       filename = clean_filename(secure_filename(file.filename))
       add_file_database(filename)
       file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-      return redirect(url_for("download_file", name=filename))
+      return redirect(url_for("convert_file", name=filename))
   return render_template("upload.html")
 
 @app.route("/download")
@@ -92,10 +92,11 @@ def convert_file():
 
     if not os.path.isfile(input_path):
       return render_template("convert.html", files=files_names)
-    
-    output = pypandoc.convert_file(input_path, 'html')
-    print(output)
-    output.save(os.path.join(app.config['UPLOAD_FOLDER'], "converted.html"))
+
+    base_name, _ = os.path.splitext(selected)
+    output_filename = base_name + ".docx"
+    output = pypandoc.convert_file(input_path, 'docx', outputfile= os.path.join(app.config["UPLOAD_FOLDER"], output_filename))
+    return redirect(url_for("download_file", name=files_names))
   return render_template("convert.html", files=files_names)
 
 if __name__ == "__main__":
