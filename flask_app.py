@@ -59,6 +59,46 @@ def lowercase_filename_extension(filename: str) -> str:
   clean_filename = splited_filename[0] + "." + splited_filename[1].lower()
   return clean_filename
 
+def alphabetical_sort(filenames: list) -> list:
+  '''
+  filenames: une liste de noms de fichiers, en string
+  Cette trie les noms de fichiers en ordre alphabétique
+  retourne la liste de noms de fichiers, triée alphabétiquement
+  '''
+  print(filenames)
+  # transformer les lettres en nombres correspondants
+  filenames_ascii_values = []
+  for filename in filenames:
+    filename_ascii_values = [0] * 200
+    for char_index in range(len(filename)):
+      filename_ascii_values[char_index] = ord(filename[char_index])
+    filenames_ascii_values.append(filename_ascii_values)
+  print(filenames_ascii_values)
+
+  # trier la liste avec le tri par sélection
+  for i in range(len(filenames_ascii_values) - 1):
+    indice_du_mini = i
+    for j in range(i + 1, len(filenames_ascii_values)) :
+      indice_de_lettre = 0
+      # ici, on trouve la première lettre qui n'est pas pareil pour ensuite la comparé
+      while filenames_ascii_values[j][indice_de_lettre] == filenames_ascii_values[indice_du_mini][indice_de_lettre]:
+        print(chr(filenames_ascii_values[j][indice_de_lettre]) + " " + chr(filenames_ascii_values[indice_du_mini][indice_de_lettre]))
+        indice_de_lettre += 1
+      if filenames_ascii_values[j][indice_de_lettre] < filenames_ascii_values[indice_du_mini][indice_de_lettre]:
+        indice_du_mini = j
+    for j in range(len(filenames_ascii_values[0])):
+      filenames_ascii_values[i][j], filenames_ascii_values[indice_du_mini][j] = filenames_ascii_values[indice_du_mini][j], filenames_ascii_values[i][j]
+
+  # transformer les nombres en lettres correspondantes
+  filenames = []
+  for filename_ascii_values in filenames_ascii_values:
+    filename = ""
+    for ascii in filename_ascii_values:
+      if (ascii != 0):
+        filename += chr(ascii)
+    filenames.append(filename)
+  return filenames
+
 #fonction qui affiche la page d'accueil
 @app.route("/")
 def home():
@@ -86,15 +126,13 @@ def download_file():
   Cette fonction affiche la page de téléchargement et gère le téléchargement des fichiers convertis
   retourn la page de téléchargement.
   '''
-  files_names = os.listdir(CONVERTED_FOLDER)
+  files_names = alphabetical_sort(os.listdir(CONVERTED_FOLDER))
   if request.method == "GET":
     try:
       file = request.args["downloaded_file"]
-      print(file)
-      print(request.args["downloaded_file"])
       return send_from_directory(app.config["CONVERTED_FOLDER"], file)
     except:
-        return render_template("download.html", files=files_names)
+      return render_template("download.html", files=files_names)
 
 @app.route("/convert", methods=["GET","POST"])
 def convert_file():
@@ -102,7 +140,7 @@ def convert_file():
   Cette fonction affiche la page de conversion et gère les conversions des fichiers uploadés
   retourn la page de conversion.
   '''
-  files = os.listdir(UPLOAD_FOLDER)
+  files = alphabetical_sort(os.listdir(UPLOAD_FOLDER))
   template_inputs = []
   # pour chaque fichier uploadé, on regarde quelles sont les extensions de sortie possibles en fonction de son extension d'entrée, et on les ajoute à la liste des entrées à afficher dans le template
   for i in range(len(files)):
