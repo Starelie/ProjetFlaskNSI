@@ -18,4 +18,4 @@ Pour exécuter le serveur Flask, vous devez exécuter le fichier `flask_app.py` 
 python3 flask_app.py
 ```
 
-Ouvrez ensuite `http://127.0.0.1:5000` dans un navigateur web ou faites `ctrl + clic` sur le lien dans le terminal.
+Ouvrez ensuite `http://127.0.0.1:5000` dans un navigateur web ou faites `ctrl + clic` sur le lien dans le terminal
