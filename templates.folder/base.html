@@ -8,14 +8,13 @@
     <link rel="stylesheet" href="{{ url_for("static", filename="nav.css") }}">
     <link rel="stylesheet" href="{{ url_for("static", filename="base.css") }}">
     {% block stylesheet %}{% endblock %}
-    <script src="https://kit.fontawesome.com/6ef62d453f.js" crossorigin="anonymous"></script>
   </head>
   <body>
     <nav>
       <a href="/"><h1>Accueil</h1></a>
       <ul>
         <a href="/upload"><li>Téléverser</li></a>
-        <a href="/download?downloaded_file=select"><li>Télécharger</li></a>
+        <a href="/download"><li>Télécharger</li></a>
         <a href="/convert"><li>Convertir</li></a>
       </ul>
     </nav>

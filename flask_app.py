@@ -60,13 +60,13 @@ def upload_file():
 def download_file():
   files_names = os.listdir(CONVERTED_FOLDER)
   if request.method == "GET":
-    file = request.args["downloaded_file"]
-    print(file)
-    print(request.args["downloaded_file"])
-    if (file == "select"):
-      return render_template("download.html", files=files_names)
-    else:
+    try:
+      file = request.args["downloaded_file"]
+      print(file)
+      print(request.args["downloaded_file"])
       return send_from_directory(app.config["CONVERTED_FOLDER"], file)
+    except:
+        return render_template("download.html", files=files_names)
 
 @app.route("/convert", methods=["GET","POST"])
 def convert_file():
@@ -103,7 +103,7 @@ def convert_file():
       Image.open(input_path).save(output_path)
     elif (extension in OUTPUT_EXTENSIONS_FFMPEG and input_extension in INPUT_EXTENSIONS_FFMPEG):
       ffmpeg.input(input_path).output(output_path).run()
-    return redirect(url_for("download_file", downloaded_file="select"))
+    return redirect(url_for("download_file"))
   return render_template("convert.html", inputs=template_inputs)
 
 if __name__ == "__main__":

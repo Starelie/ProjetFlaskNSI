@@ -13,11 +13,9 @@
   <li class="top-row first-column">Fichiers disponibles</li><li class="top-row second-column">Télécharger</li>
   {% for file in files %}
   <li class="first-column">{{file}}</li>
-  <form method="GET">
+  <form method="GET" class="second-column">
     <input type="hidden" id="downloaded-file" name="downloaded_file" value={{file}}>
-    <a type="submit" value="download">
-      <span class="underline csecond-column">download</span><i class="fa-solid fa-download"></i>
-    </a>
+    <input type="submit" value="download">
   </form>
   {% endfor %}
 </ul>
