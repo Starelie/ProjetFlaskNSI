@@ -2,3 +2,5 @@
 pillow
 ffmpeg-python
 Flask
+pypandoc
+Werkzeug
