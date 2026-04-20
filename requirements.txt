@@ -1,0 +1,4 @@
+# For conversion
+pillow
+ffmpeg-python
+Flask
