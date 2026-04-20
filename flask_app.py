@@ -27,19 +27,34 @@ app.template_folder = TEMPLATE_FOLDER
 os.makedirs(os.path.relpath(UPLOAD_FOLDER), exist_ok=True)
 os.makedirs(os.path.relpath(CONVERTED_FOLDER), exist_ok=True)
 
-# separe le nom du fichier de son extension, et si le nom est vide, le remplace par "no_name"
+
 def split_filename(filename: str) -> list:
+  '''
+  filename: le nom d'un fichier en string
+  Cette fonction sépare le nom du fichier de son extension, et si le nom est vide, le remplace par "no_name"
+  retourn une liste contenant le nom du fichier et son extension (list)
+  '''
   split = filename.rsplit(".", 1)
   if (split[0] == ""):
     split[0] = "no_name"
   return split
 
-# verifie que le fichier a une extension autorisée
+
 def allowed_file(filename: str) -> bool:
+  '''
+  filename: le nom d'un fichier en string
+  Cette fonction vérifie que le fichier a une extension autorisée
+  retourn True si le fichier a une extension autorisée, sinon False (boolean)
+  '''
   return "." in filename and split_filename(filename)[1].lower() in ALLOWED_INPUT_EXTENSIONS
 
-# met l'extension du fichier en minuscule pour éviter les problèmes de reconnaissance d'extension
+
 def lowercase_filename_extension(filename: str) -> str:
+  '''
+  filename: le nom d'un fichier en string
+  Cette fonction met l'extension du fichier en minuscule pour éviter les problèmes de reconnaissance d'extension 
+  retourn le nom du fichier avec l'extension en minuscule (string)
+  '''
   splited_filename = split_filename(filename)
   clean_filename = splited_filename[0] + "." + splited_filename[1].lower()
   return clean_filename
@@ -49,9 +64,13 @@ def lowercase_filename_extension(filename: str) -> str:
 def home():
   return render_template("home.html")
 
-#fonction qui affiche la page d'upload et qui gère l'upload des fichiers
+
 @app.route("/upload", methods=["GET", "POST"])
 def upload_file():
+  '''
+  Cette fonction affiche la page d'upload et gère les televersements des fichiers
+  retourn la page de televersment.
+  '''
   if request.method == "POST":
     file = request.files["file"]
     if file and allowed_file(file.filename):
@@ -60,9 +79,13 @@ def upload_file():
       return redirect(url_for("convert_file", name=filename))
   return render_template("upload.html")
 
-#fonction qui affiche la page de téléchargement et qui gère le téléchargement des fichiers convertis
+
 @app.route("/download", methods=["GET", "POST"])
 def download_file():
+  '''
+  Cette fonction affiche la page de téléchargement et gère le téléchargement des fichiers convertis
+  retourn la page de téléchargement.
+  '''
   files_names = os.listdir(CONVERTED_FOLDER)
   if request.method == "GET":
     try:
@@ -73,9 +96,12 @@ def download_file():
     except:
         return render_template("download.html", files=files_names)
 
-#fonction qui affiche la page de conversion et qui gère la conversion des fichiers
 @app.route("/convert", methods=["GET","POST"])
 def convert_file():
+  '''
+  Cette fonction affiche la page de conversion et gère les conversions des fichiers uploadés
+  retourn la page de conversion.
+  '''
   files = os.listdir(UPLOAD_FOLDER)
   template_inputs = []
   # pour chaque fichier uploadé, on regarde quelles sont les extensions de sortie possibles en fonction de son extension d'entrée, et on les ajoute à la liste des entrées à afficher dans le template
