@@ -4,18 +4,21 @@ from flask import Flask, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 import pypandoc
 import ffmpeg
+from PIL import Image
 
 # Declare constants
 UPLOAD_FOLDER = "uploads/"
 CONVERTED_FOLDER = "converted/"
 DATABASE_FOLDER = "databases/"
 TEMPLATE_FOLDER = "templates.folder/"
+INPUT_EXTENSIONS_PILLOW = ("jpeg", "jpg", "png", "webp", "avif", "tiff", "gif")
+OUTPUT_EXTENSIONS_PILLOW = ("jpeg", "jpg", "png", "webp", "avif", "tiff", "gif")
 INPUT_EXTENSIONS_FFMPEG = ("ast", "avi", "flac", "gif", "h264", "hevc", "ico", "mov", "mp3", "mp4", "m4a", "wav")
 OUTPUT_EXTENSIONS_FFMPEG = ("ast", "avi", "flac", "gif", "h264","hevc", "ico", "ipod", "mov", "mp3", "mp4", "psp", "wav", "webm", "webp")
 INPUT_EXTENSIONS_PANDOC = ("csv", "docx", "epub", "json", "html", "ipynb", "md", "odt", "pptx")
 OUTPUT_EXTENSIONS_PANDOC = ("docx", "epub", "json", "html", "ipynb", "md", "odt", "pptx")
 # OUTPUT_EXTENSIONS_PANDOC = ("docx", "epub", "json", "html", "ipynb", "md", "odt", "pdf", "pptx")
-ALLOWED_INPUT_EXTENSIONS = INPUT_EXTENSIONS_FFMPEG + INPUT_EXTENSIONS_PANDOC
+ALLOWED_INPUT_EXTENSIONS = INPUT_EXTENSIONS_FFMPEG + INPUT_EXTENSIONS_PANDOC + INPUT_EXTENSIONS_PILLOW
 
 # Setup flask
 app = Flask(__name__)
@@ -99,6 +102,8 @@ def convert_file():
       extensions.extend(OUTPUT_EXTENSIONS_FFMPEG)
     if split_filename(files[i])[1] in INPUT_EXTENSIONS_PANDOC:
       extensions.extend(OUTPUT_EXTENSIONS_PANDOC)
+    if split_filename(files[i])[1] in INPUT_EXTENSIONS_PILLOW:
+      extensions.extend(OUTPUT_EXTENSIONS_PILLOW)
     template_inputs.append((files[i], extensions))
       
   if request.method == "POST":
@@ -118,7 +123,9 @@ def convert_file():
     output_path = os.path.join(app.config["CONVERTED_FOLDER"], output_filename)
     if (input_extension in INPUT_EXTENSIONS_PANDOC):
       pypandoc.convert_file(input_path, to=extension, outputfile=output_path)
-    if (extension in OUTPUT_EXTENSIONS_FFMPEG and input_extension in INPUT_EXTENSIONS_FFMPEG):
+    elif (extension in OUTPUT_EXTENSIONS_PILLOW and input_extension in INPUT_EXTENSIONS_PILLOW):
+      Image.open(input_path).save(output_path)
+    elif (extension in OUTPUT_EXTENSIONS_FFMPEG and input_extension in INPUT_EXTENSIONS_FFMPEG):
       ffmpeg.input(input_path).output(output_path).run()
     return redirect(url_for("download_file"))
   return render_template("convert.html", inputs=template_inputs)
