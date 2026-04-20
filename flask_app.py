@@ -65,7 +65,6 @@ def alphabetical_sort(filenames: list) -> list:
   Cette trie les noms de fichiers en ordre alphabétique
   retourne la liste de noms de fichiers, triée alphabétiquement (list)
   '''
-  print(filenames)
   # transformer les lettres en nombres correspondants
   filenames_ascii_values = []
   for filename in filenames:
@@ -73,7 +72,6 @@ def alphabetical_sort(filenames: list) -> list:
     for char_index in range(len(filename)):
       filename_ascii_values[char_index] = ord(filename[char_index])
     filenames_ascii_values.append(filename_ascii_values)
-  print(filenames_ascii_values)
 
   # trier la liste avec le tri par sélection
   for i in range(len(filenames_ascii_values) - 1):
@@ -82,7 +80,6 @@ def alphabetical_sort(filenames: list) -> list:
       indice_de_lettre = 0
       # ici, on trouve la première lettre qui n'est pas pareil pour ensuite la comparé
       while filenames_ascii_values[j][indice_de_lettre] == filenames_ascii_values[indice_du_mini][indice_de_lettre]:
-        print(chr(filenames_ascii_values[j][indice_de_lettre]) + " " + chr(filenames_ascii_values[indice_du_mini][indice_de_lettre]))
         indice_de_lettre += 1
       if filenames_ascii_values[j][indice_de_lettre] < filenames_ascii_values[indice_du_mini][indice_de_lettre]:
         indice_du_mini = j
