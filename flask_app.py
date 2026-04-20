@@ -5,7 +5,7 @@ import pypandoc
 import ffmpeg
 from PIL import Image
 
-# Declare constants
+# Déclarer les constantes
 UPLOAD_FOLDER = "uploads/"
 CONVERTED_FOLDER = "converted/"
 TEMPLATE_FOLDER = "templates.folder/"
@@ -17,13 +17,13 @@ INPUT_EXTENSIONS_PANDOC = ("csv", "docx", "epub", "json", "html", "ipynb", "md",
 OUTPUT_EXTENSIONS_PANDOC = ("docx", "epub", "json", "html", "ipynb", "md", "odt", "pptx") 
 ALLOWED_INPUT_EXTENSIONS = INPUT_EXTENSIONS_FFMPEG + INPUT_EXTENSIONS_PANDOC + INPUT_EXTENSIONS_PILLOW
 
-# Setup flask
+# Initialiser flask
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["CONVERTED_FOLDER"] = CONVERTED_FOLDER
 app.template_folder = TEMPLATE_FOLDER
 
-# Cree des dossiers pour les fichiers uploadés et convertis s'ils n'existent pas déjà
+# Créer des dossiers pour les fichiers uploadés et convertis si ces dossiers n'existent pas déjà
 os.makedirs(os.path.relpath(UPLOAD_FOLDER), exist_ok=True)
 os.makedirs(os.path.relpath(CONVERTED_FOLDER), exist_ok=True)
 
@@ -32,7 +32,7 @@ def split_filename(filename: str) -> list:
   '''
   filename: le nom d'un fichier en string
   Cette fonction sépare le nom du fichier de son extension, et si le nom est vide, le remplace par "no_name"
-  retourn une liste contenant le nom du fichier et son extension (list)
+  retourne une liste contenant le nom du fichier et son extension (list)
   '''
   split = filename.rsplit(".", 1)
   if (split[0] == ""):
@@ -44,7 +44,7 @@ def allowed_file(filename: str) -> bool:
   '''
   filename: le nom d'un fichier en string
   Cette fonction vérifie que le fichier a une extension autorisée
-  retourn True si le fichier a une extension autorisée, sinon False (boolean)
+  retourne True si le fichier a une extension autorisée, sinon False (boolean)
   '''
   return "." in filename and split_filename(filename)[1].lower() in ALLOWED_INPUT_EXTENSIONS
 
@@ -53,7 +53,7 @@ def lowercase_filename_extension(filename: str) -> str:
   '''
   filename: le nom d'un fichier en string
   Cette fonction met l'extension du fichier en minuscule pour éviter les problèmes de reconnaissance d'extension 
-  retourn le nom du fichier avec l'extension en minuscule (string)
+  retourne le nom du fichier avec l'extension en minuscule (string)
   '''
   splited_filename = split_filename(filename)
   clean_filename = splited_filename[0] + "." + splited_filename[1].lower()
@@ -63,7 +63,7 @@ def alphabetical_sort(filenames: list) -> list:
   '''
   filenames: une liste de noms de fichiers, en string
   Cette trie les noms de fichiers en ordre alphabétique
-  retourne la liste de noms de fichiers, triée alphabétiquement
+  retourne la liste de noms de fichiers, triée alphabétiquement (list)
   '''
   print(filenames)
   # transformer les lettres en nombres correspondants
@@ -99,7 +99,7 @@ def alphabetical_sort(filenames: list) -> list:
     filenames.append(filename)
   return filenames
 
-#fonction qui affiche la page d'accueil
+# fonction qui affiche la page d'accueil
 @app.route("/")
 def home():
   return render_template("home.html")
@@ -108,8 +108,8 @@ def home():
 @app.route("/upload", methods=["GET", "POST"])
 def upload_file():
   '''
-  Cette fonction affiche la page d'upload et gère les televersements des fichiers
-  retourn la page de televersment.
+  Cette fonction affiche la page d'upload et gère les téléversements des fichiers
+  retourne la page de téléversment.
   '''
   if request.method == "POST":
     file = request.files["file"]
@@ -124,10 +124,11 @@ def upload_file():
 def download_file():
   '''
   Cette fonction affiche la page de téléchargement et gère le téléchargement des fichiers convertis
-  retourn la page de téléchargement.
+  retourne la page de téléchargement.
   '''
   files_names = alphabetical_sort(os.listdir(CONVERTED_FOLDER))
   if request.method == "GET":
+    # S'il y a une requête GET, afficher le fichier demandé, sinon, afficher la sélection de fichiers
     try:
       file = request.args["downloaded_file"]
       return send_from_directory(app.config["CONVERTED_FOLDER"], file)
@@ -138,11 +139,11 @@ def download_file():
 def convert_file():
   '''
   Cette fonction affiche la page de conversion et gère les conversions des fichiers uploadés
-  retourn la page de conversion.
+  retourne la page de conversion.
   '''
+  # pour chaque fichier uploadé, on regarde quelles sont les extensions de sortie possibles en fonction de son extension, et on les ajoute à la liste des extension à afficher dans le sélecteur
   files = alphabetical_sort(os.listdir(UPLOAD_FOLDER))
   template_inputs = []
-  # pour chaque fichier uploadé, on regarde quelles sont les extensions de sortie possibles en fonction de son extension d'entrée, et on les ajoute à la liste des entrées à afficher dans le template
   for i in range(len(files)):
     extensions = []
     if split_filename(files[i])[1] in INPUT_EXTENSIONS_FFMPEG:
@@ -157,21 +158,20 @@ def convert_file():
   if request.method == "POST":
     selected = request.form.get("selected_file")
     extension = request.form.get("selected_extension")
-  #vérifie s'il y a un fichier selectionné
+    # vérifie s'il y a un fichier selectionné
     if selected is None:
       return render_template("convert.html", inputs=template_inputs)
     
     input_path = os.path.join(app.config["UPLOAD_FOLDER"], selected)
 
-    #vérifie s'il y a une extension de sortie sélectionnée
+    # vérifie s'il y a une extension de sortie sélectionnée
     if not os.path.isfile(input_path):
       return render_template("convert.html", inputs=template_inputs)
-
     
     base_name, input_extension = split_filename(selected)
     output_filename = base_name + "." + extension
     output_path = os.path.join(app.config["CONVERTED_FOLDER"], output_filename)
-    #en fonction de l'extension d'entrée et de sortie, on utilise la bibliothèque correspondante pour faire la conversion
+    # en fonction de l'extension du fichier, on utilise la bibliothèque correspondante pour faire la conversion
     if (input_extension in INPUT_EXTENSIONS_PANDOC):
       pypandoc.convert_file(input_path, to=extension, outputfile=output_path)
     elif (extension in OUTPUT_EXTENSIONS_PILLOW and input_extension in INPUT_EXTENSIONS_PILLOW):
@@ -181,6 +181,6 @@ def convert_file():
     return redirect(url_for("download_file"))
   return render_template("convert.html", inputs=template_inputs)
 
-#lance l'application flask en mode debug
+# lance l'application flask en mode debug
 if __name__ == "__main__":
   app.run(debug=True)
