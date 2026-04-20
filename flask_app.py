@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, redirect, url_for, render_template
+from flask import Flask, request, redirect, url_for, render_template, send_from_directory, send_file
 from werkzeug.utils import secure_filename
 import pypandoc
 import ffmpeg
@@ -56,15 +56,18 @@ def upload_file():
       return redirect(url_for("convert_file", name=filename))
   return render_template("upload.html")
 
-@app.route("/download")
+@app.route("/download", methods=["GET", "POST"])
 def download_file():
   files_names = os.listdir(CONVERTED_FOLDER)
-  return render_template("download.html", files=files_names)
-'''
-  print(os.path.join(app.config['UPLOAD_FOLDER'],))
-  output = pypandoc.convert_file(os.path.join(app.config['UPLOAD_FOLDER'], files_names[0]), 'html')
-  # output.file.save(os.path.join(app.config['UPLOAD_FOLDER'], "converted.html"))
-'''
+  if request.method == "GET":
+    file = request.args["downloaded_file"]
+    print(file)
+    print(request.args["downloaded_file"])
+    if (file == "select"):
+      return render_template("download.html", files=files_names)
+    else:
+      return send_from_directory(app.config["CONVERTED_FOLDER"], file)
+
 @app.route("/convert", methods=["GET","POST"])
 def convert_file():
   files = os.listdir(UPLOAD_FOLDER)
@@ -100,7 +103,7 @@ def convert_file():
       Image.open(input_path).save(output_path)
     elif (extension in OUTPUT_EXTENSIONS_FFMPEG and input_extension in INPUT_EXTENSIONS_FFMPEG):
       ffmpeg.input(input_path).output(output_path).run()
-    return redirect(url_for("download_file"))
+    return redirect(url_for("download_file", downloaded_file="select"))
   return render_template("convert.html", inputs=template_inputs)
 
 if __name__ == "__main__":
