@@ -1,5 +1,4 @@
 import os
-import sqlite3
 from flask import Flask, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 import pypandoc
@@ -9,7 +8,6 @@ from PIL import Image
 # Declare constants
 UPLOAD_FOLDER = "uploads/"
 CONVERTED_FOLDER = "converted/"
-DATABASE_FOLDER = "databases/"
 TEMPLATE_FOLDER = "templates.folder/"
 INPUT_EXTENSIONS_PILLOW = ("jpeg", "jpg", "png", "webp", "avif", "tiff", "gif")
 OUTPUT_EXTENSIONS_PILLOW = ("jpeg", "jpg", "png", "webp", "avif", "tiff", "gif")
@@ -27,16 +25,8 @@ app.config["CONVERTED_FOLDER"] = CONVERTED_FOLDER
 app.template_folder = TEMPLATE_FOLDER
 
 # Create necessary folders if they don't already exist
-os.makedirs(os.path.relpath(DATABASE_FOLDER), exist_ok=True)
 os.makedirs(os.path.relpath(UPLOAD_FOLDER), exist_ok=True)
 os.makedirs(os.path.relpath(CONVERTED_FOLDER), exist_ok=True)
-
-# Setup the database
-connection = sqlite3.connect(f"{DATABASE_FOLDER}/uploads.db")
-cursor = connection.cursor()
-cursor.execute("CREATE TABLE IF NOT EXISTS uploads(filename, extension, time)")
-cursor.close()
-connection.close()
 
 def split_filename(filename: str) -> list:
   split = filename.rsplit(".", 1)
@@ -46,22 +36,6 @@ def split_filename(filename: str) -> list:
 
 def allowed_file(filename: str) -> bool:
   return "." in filename and split_filename(filename)[1].lower() in ALLOWED_INPUT_EXTENSIONS
-
-def add_file_database(filename: str) -> None:
-  connection = sqlite3.connect(f"{DATABASE_FOLDER}/uploads.db")
-  cursor = connection.cursor()
-  table_entry = split_filename(filename)
-  files = cursor.execute("SELECT filename, extension FROM uploads").fetchall()
-  for (name, extension) in files:
-    if name == table_entry[0] and extension == table_entry[1]:
-      cursor.execute("DELETE FROM uploads WHERE filename = ? AND extension = ?", (name, extension))
-  cursor.execute("""
-                  INSERT INTO uploads (filename, extension, time)
-                  VALUES (?, ?, CURRENT_TIMESTAMP)
-                  """, table_entry)
-  cursor.close()
-  connection.commit()
-  connection.close()
 
 def lowercase_filename_extension(filename: str) -> str:
   splited_filename = split_filename(filename)
@@ -78,7 +52,6 @@ def upload_file():
     file = request.files["file"]
     if file and allowed_file(file.filename):
       filename = secure_filename(lowercase_filename_extension(file.filename))
-      add_file_database(filename)
       file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
       return redirect(url_for("convert_file", name=filename))
   return render_template("upload.html")
