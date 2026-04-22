@@ -3,35 +3,39 @@ COLUMN_NUMBER = 3
 function file_selection()
 {
   // trouver la liste de fichiers
-  let list = document.getElementById("files-list");
-  let list_elements = list.children;
+  let second_column_list = document.getElementsByClassName("second-column");
+  let third_column_list = document.getElementsByClassName("third-column");
+
   // si la colonne "Sélection" est cliquée
-  for (let i = COLUMN_NUMBER + 1; i < list_elements.length; i += COLUMN_NUMBER) {
-    list_elements[i].addEventListener("click", () => {
+  for (let i = 0; i < second_column_list.length; i++) {
+    if (!second_column_list[i].classList.contains("top-row"))
+    {
+      second_column_list[i].addEventListener("click", () => {
       // échanger entre "choisit" et "choisir" et enlever "choisit" des autres rangées
-      if (!list_elements[i].classList.contains("selected")) {
-        for (let j = COLUMN_NUMBER + 1; j < list_elements.length; j += COLUMN_NUMBER) {
-          if (list_elements[j].classList.contains("selected")) {
-            list_elements[j].firstChild.textContent = "choisir";
-            list_elements[j].lastChild.textContent = "☐";
-            list_elements[j].classList.remove("selected");
+      if (!second_column_list[i].classList.contains("selected")) {
+        for (let j = 0; j < second_column_list.length; j++) {
+          if (second_column_list[j].classList.contains("selected")) {
+            second_column_list[j].firstChild.textContent = "choisir";
+            second_column_list[j].lastChild.textContent = "☐";
+            second_column_list[j].classList.remove("selected");
           }
         }
-        list_elements[i].firstChild.textContent = "choisit";
-        list_elements[i].lastChild.textContent = "☑";
-        list_elements[i].classList.add("selected");
+        second_column_list[i].firstChild.textContent = "choisit";
+        second_column_list[i].lastChild.textContent = "☑";
+        second_column_list[i].classList.add("selected");
 
         // appeler select_extension pour que la bonne extension soit choisie
-        select_extension(list_elements[i + 1])
+        select_extension(third_column_list[i])
       }
       else {
-        list_elements[i].firstChild.textContent = "choisir";
-        list_elements[i].lastChild.textContent = "☐";
-        list_elements[i].classList.remove("selected");
+        second_column_list[i].firstChild.textContent = "choisir";
+        second_column_list[i].lastChild.textContent = "☐";
+        second_column_list[i].classList.remove("selected");
       }
 
       document.getElementById("selected-file").value = get_selected_file();
-    });
+      });
+    }
   }
 }
 
@@ -45,14 +49,15 @@ function select_extension(element)
 function extension_selection()
 {
   // trouver la liste de fichiers
-  let list = document.getElementById("files-list");
-  let list_elements = list.children;
+  let second_column_list = document.getElementsByClassName("second-column");
+  let third_column_list = document.getElementsByClassName("third-column");
+
   // quand le sélecteur change, appeler select_extension
-  for (let i = COLUMN_NUMBER + 2; i < list_elements.length; i += COLUMN_NUMBER) {
-    list_elements[i].addEventListener("change", (element) => {
-      if (list_elements[i - 1].classList.contains("selected"))
+  for (let i = 0; i < third_column_list.length; i++) {
+    third_column_list[i].addEventListener("change", (column_element) => {
+      if (second_column_list[i].classList.contains("selected"))
       {
-        select_extension(element.currentTarget);
+        select_extension(column_element.currentTarget);
       }
     });
   }
@@ -61,11 +66,11 @@ function extension_selection()
 function get_selected_file()
 {
   // trouver quel fichier est choisit
-  let list = document.getElementById("files-list");
-  let list_elements = list.children;
-  for (let i = COLUMN_NUMBER + 1; i < list_elements.length; i += COLUMN_NUMBER) {
-    if (list_elements[i].classList.contains("selected")) {
-      return list_elements[i - 1].textContent
+  let first_column_list = document.getElementsByClassName("first-column");
+  let second_column_list = document.getElementsByClassName("second-column");
+  for (let i = 0; i < second_column_list.length; i++) {
+    if (second_column_list[i].classList.contains("selected")) {
+      return first_column_list[i].textContent
     }
   }
   return;
